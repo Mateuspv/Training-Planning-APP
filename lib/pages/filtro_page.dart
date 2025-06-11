@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/exercicios.dart';
+import 'mapa_selecao_page.dart';
 
 class FiltroPage extends StatefulWidget {
   static const ROUTE_NAME = '/filtro';
@@ -112,7 +114,25 @@ class _FiltroPageState extends State<FiltroPage> {
     });
   }
 
-  void _buscarLocalizacao() {
-    print('');
+  void _buscarLocalizacao() async {
+    final resultado = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapaSelecaoPage(),
+      ),
+    );
+
+    if (resultado != null && resultado is LatLng) {
+      final latitude = resultado.latitude.toString();
+      final longitude = resultado.longitude.toString();
+      final local = '$latitude,$longitude';
+
+      setState(() {
+        _localAcademia = local;
+        _alterouValores = true;
+      });
+
+      prefs.setString(FiltroPage.CHAVE_LOCAL_ACADEMIA, local);
+    }
   }
 }

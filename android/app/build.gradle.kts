@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "unimater.training.app.training_planning_app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
