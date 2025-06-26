@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:training_planning_app/pages/Alimento_page.dart';
 import 'package:training_planning_app/pages/filtro_page.dart';
 import 'package:training_planning_app/pages/inclusao_exercicios_page.dart';
 import 'package:training_planning_app/pages/lista_exercicios_page.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         routes: {
           FiltroPage.ROUTE_NAME: (BuildContext context) => FiltroPage(),
           InclusaoExerciciosPage.ROUTE_NAME: (BuildContext context) => InclusaoExerciciosPage(),
+          AlimentosPage.ROUTE_NAME: (BuildContext context) => AlimentosPage(),
         }
     );
   }

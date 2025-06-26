@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:training_planning_app/pages/Alimento_page.dart';
 import 'package:training_planning_app/pages/inclusao_exercicios_page.dart';
 import 'package:training_planning_app/widgets/criarbarradias.dart';
 import '../dao/exercicios_dao.dart';
@@ -24,11 +26,31 @@ class _ListaExerciciosPageState extends State<ListaExerciciosPage> {
   }
 
   void _carregarExercicios() async {
-    final exercicios = await _dao.listar();
+    final prefs = await SharedPreferences.getInstance();
+    final tipoTreino = prefs.getString(FiltroPage.CHAVE_CAMPO_DIA) ?? '';
+
+    final todosExercicios = await _dao.listar();
+
     setState(() {
-      _exercicios = exercicios.where((e) => (e.dia % 7) == _diaSelecionado).toList();
+      if (tipoTreino == Exercicio.CAMPO_DIA) {
+        _exercicios = todosExercicios
+            .where((e) => (e.dia % 7) == _diaSelecionado)
+            .toList();
+      } else if (tipoTreino == Exercicio.CAMPO_SEMANA) {
+        final hojeFormatado = DateFormat('dd/MM/yyyy').format(DateTime.now());
+
+        _exercicios = todosExercicios.where((e) {
+          final dataExercicio = e.semana != null
+              ? DateFormat('dd/MM/yyyy').format(e.semana!)
+              : '';
+          return dataExercicio == hojeFormatado;
+        }).toList();
+      } else {
+        _exercicios = todosExercicios;
+      }
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -75,13 +97,25 @@ class _ListaExerciciosPageState extends State<ListaExerciciosPage> {
         ],
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 16.0, right: 8.0),
-        child: FloatingActionButton(
-          heroTag: "adicionarExercicio",
-          onPressed: _adicionarExercicio,
-          backgroundColor: Colors.green,
-          child: const Icon(Icons.add),
-          tooltip: "Adicionar Exercício",
+        padding: const EdgeInsets.only(bottom: 16, left: 40.0, right: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            FloatingActionButton(
+              heroTag: "abrirAlimentos",
+              onPressed: _abrirPaginaDieta,
+              backgroundColor: Colors.green,
+              child: const Icon(Icons.restaurant_menu),
+              tooltip: "Abrir Alimentos/Dieta",
+            ),
+            FloatingActionButton(
+              heroTag: "adicionarExercicio",
+              onPressed: _adicionarExercicio,
+              backgroundColor: Colors.green,
+              child: const Icon(Icons.add),
+              tooltip: "Adicionar Exercício",
+            ),
+          ],
         ),
       ),
 
@@ -160,6 +194,15 @@ class _ListaExerciciosPageState extends State<ListaExerciciosPage> {
       }
     });
   }
+
+  void _abrirPaginaDieta() {
+    Navigator.of(context).pushNamed(AlimentosPage.ROUTE_NAME).then((alterouValores) {
+      if (alterouValores == true) {
+        setState(() {});
+      }
+    });
+  }
+
 
   void _adicionarExercicio() {
     Navigator.of(context)

@@ -7,7 +7,7 @@ import 'mapa_selecao_page.dart';
 class FiltroPage extends StatefulWidget {
   static const ROUTE_NAME = '/filtro';
   static const CHAVE_CAMPO_DIA = 'campoDIa';
-  static const CHAVE_ORDENAR_SEMANA = 'campoSemana';
+  static const CHAVE_CAMPO_SEMANA = 'campoSemana';
   static const CHAVE_LOCAL_ACADEMIA = 'localAcademia';
 
   @override
@@ -21,8 +21,7 @@ class _FiltroPageState extends State<FiltroPage> {
   };
 
   late final SharedPreferences prefs;
-  String _usarTreinoDiario = '';
-  String _usarTreinoSemana = '';
+  String _tipoTreinoSelecionado = '';
   String _localAcademia = '';
   bool _alterouValores = false;
 
@@ -35,8 +34,7 @@ class _FiltroPageState extends State<FiltroPage> {
   void _carregarSharedPreferences() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
-      _usarTreinoDiario = prefs.getString(FiltroPage.CHAVE_CAMPO_DIA) ?? '';
-      _usarTreinoSemana = prefs.getString(FiltroPage.CHAVE_ORDENAR_SEMANA) ?? '';
+      _tipoTreinoSelecionado = prefs.getString(FiltroPage.CHAVE_CAMPO_DIA) ?? '';
       _localAcademia = prefs.getString(FiltroPage.CHAVE_LOCAL_ACADEMIA) ?? '';
     });
   }
@@ -91,26 +89,35 @@ class _FiltroPageState extends State<FiltroPage> {
             children: [
               Radio(
                 value: campo,
-                groupValue: _usarTreinoDiario,
-                onChanged: _onTreinoDiarioChange,
+                groupValue: _tipoTreinoSelecionado,
+                onChanged: _onTipoTreinoChange,
               ),
               Text(camposConfiguracaoTreino[campo] ?? ''),
             ],
           ),
+        if (_localAcademia.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8),
+            child: Text(
+              'Local da academia: $_localAcademia',
+              style: TextStyle(color: Colors.black54, fontSize: 12),
+            ),
+          ),
       ],
     );
   }
+
 
   Future<bool> _onVoltarClick() async {
     Navigator.of(context).pop(_alterouValores);
     return true;
   }
 
-  void _onTreinoDiarioChange(String? valor) {
+  void _onTipoTreinoChange(String? valor) {
     prefs.setString(FiltroPage.CHAVE_CAMPO_DIA, valor ?? '');
     _alterouValores = true;
     setState(() {
-      _usarTreinoDiario = valor ?? '';
+      _tipoTreinoSelecionado = valor ?? '';
     });
   }
 
